@@ -100,6 +100,8 @@ namespace LuckyHill
                     } while (i < 4);
                 }
 
+                RandomSauceShaker(ref iterationSeed);
+
                 //Carbon, Blood, and Spin
                 {
                     int i = 0;
@@ -182,8 +184,6 @@ namespace LuckyHill
                     {
                         faceBuffer |= 0x4;
                     }
-
-                    RandomSauceShaker(ref iterationSeed);
                 }
 
                 //Suitcase
