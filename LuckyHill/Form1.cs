@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static LuckyHill.UserSettings;
 
 namespace LuckyHill
 {
@@ -15,13 +17,35 @@ namespace LuckyHill
         public form_main()
         {
             InitializeComponent();
+            _settings.LoadFromDisk(this);
+
+            ApplyColumns(_settings.columnsToShow);
+
             bgw_listUpdate.WorkerSupportsCancellation = true;
             tmr_update.Start();
             UpdateResultList();
         }
 
+        private UserSettings _settings = new UserSettings();
         private SanitizedPlayerInput _currentInputs = new SanitizedPlayerInput();
         private Queue<ListViewItem> _resultsStack = new Queue<ListViewItem>(1024);
+        private bool _restartWorker = false;
+        private bool _runTextHandler = true;
+
+        private void ApplyColumns(RNGColumns columns)
+        {
+            lv_results.Columns.Clear();
+            string[] names = Enum.GetNames(typeof(RNGColumns));
+
+            for (int i = 0, currentValue = 1, len = names.Length; i < len; i++)
+            {
+                if ((columns & (RNGColumns)currentValue) != 0)
+                {
+                    lv_results.Columns.Add(new ColumnHeader() { Text = names[i], Width = 55 });
+                }
+                currentValue <<= 1;
+            }
+        }
 
         private void StopPreviousUpdate()
         {
@@ -29,29 +53,37 @@ namespace LuckyHill
             {
                 bgw_listUpdate.CancelAsync();
             }
+            lv_results.Items.Clear();
+            _resultsStack.Clear();
         }
 
         private void UpdateResultList()
         {
-            if(bgw_listUpdate.IsBusy && !bgw_listUpdate.CancellationPending)
-            {
-                StopPreviousUpdate();
-            }
-
-            int antiInfinites = 0;
-            while (bgw_listUpdate.IsBusy && antiInfinites < 1000000) { antiInfinites++; }
             lv_results.Items.Clear();
             _resultsStack.Clear();
-            bgw_listUpdate.RunWorkerAsync();
+            if (bgw_listUpdate.CancellationPending)
+            {
+                _restartWorker = true;
+            }
+            else
+            {
+                bgw_listUpdate.RunWorkerAsync();
+            }
         }
+
         private void Bgw_listUpdate_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            SH2Exe.SimulateRandomInitialisedFrom(_currentInputs, _resultsStack, () => worker.CancellationPending);
-            if (worker.CancellationPending == true)
+            SH2Exe.SimulateRandomInitialisedFrom(_currentInputs, _settings, _resultsStack, worker);
+        }
+
+        private void Bgw_listUpdate_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if(_restartWorker)
             {
-                e.Cancel = true;
+                _restartWorker = false;
+                bgw_listUpdate.RunWorkerAsync();
             }
         }
 
@@ -66,7 +98,19 @@ namespace LuckyHill
                     int tookTooLong = 0;
                     while (_resultsStack.Count > 0)
                     {
-                        lv_results.Items.Add(_resultsStack.Dequeue());
+                        ListViewItem item = _resultsStack.Dequeue();
+                        for (int i = 0, currentValue = 1, len = item.SubItems.Count; i < len; i++)
+                        {
+                            if ((_settings.columnsToShow & (RNGColumns)currentValue) == 0)
+                            {
+                                item.SubItems.RemoveAt(i);
+                                i--;
+                                len--;
+                            }
+                            currentValue <<= 1;
+                        }
+
+                        lv_results.Items.Add(item);
                         tookTooLong++;
                         if (tookTooLong > 50) break;
                     }
@@ -139,6 +183,7 @@ namespace LuckyHill
 
         private void Txt_userClock_TextChanged(object sender, EventArgs e)
         {
+            if (!_runTextHandler) return;
             string text = txt_userClock.Text;
             int hours = -1;
             int minutes = -1;
@@ -177,26 +222,31 @@ namespace LuckyHill
 
         private void Txt_userSpin_TextChanged(object sender, EventArgs e)
         {
+            if (!_runTextHandler) return;
             ValidateFourDigits(txt_userSpin.Text, _currentInputs.spin);
         }
 
         private void Txt_playerBlood_TextChanged(object sender, EventArgs e)
         {
+            if (!_runTextHandler) return;
             ValidateFourDigits(txt_playerBlood.Text, _currentInputs.blood);
         }
 
         private void Txt_playerCarbon_TextChanged(object sender, EventArgs e)
         {
+            if (!_runTextHandler) return;
             ValidateFourDigits(txt_playerCarbon.Text, _currentInputs.carbon);
         }
 
         private void Txt_userBug_TextChanged(object sender, EventArgs e)
         {
+            if (!_runTextHandler) return;
             ValidateThreeDigits(txt_userBug.Text, _currentInputs.bug);
         }
 
         private void Txt_userHangmen_TextChanged(object sender, EventArgs e)
         {
+            if (!_runTextHandler) return;
             string text = txt_userHangmen.Text;
             int hangmen = 0;
             if (!String.IsNullOrEmpty(text))
@@ -217,6 +267,7 @@ namespace LuckyHill
 
         private void Txt_userSuitcase_TextChanged(object sender, EventArgs e)
         {
+            if (!_runTextHandler) return;
             string text = txt_userSuitcase.Text;
             int suitcase = -1;
             if (!String.IsNullOrEmpty(text))
@@ -237,6 +288,7 @@ namespace LuckyHill
 
         private void Button1_Click(object sender, EventArgs e)
         {
+            _runTextHandler = false;
             StopPreviousUpdate();
             txt_userClock.Text = "";
             txt_userSpin.Text = "";
@@ -247,6 +299,41 @@ namespace LuckyHill
             txt_userSuitcase.Text = "";
             _currentInputs.Reset();
             UpdateResultList();
+            _runTextHandler = true;
+        }
+
+        form_about _aboutForm;
+        private void AboutToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if(_aboutForm == null)
+            {
+                _aboutForm = new form_about();
+                _aboutForm.Closed += (s, arg) => _aboutForm = null;
+                _aboutForm.Show();
+            }
+        }
+
+        form_settings _settingsForm;
+        private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_settingsForm == null)
+            {
+                _settingsForm = new form_settings();
+                _settingsForm.SetUserSettings(_settings);
+                _settingsForm.Closed += (s, arg) =>
+                {
+                    _settingsForm = null;
+                    StopPreviousUpdate();
+                    ApplyColumns(_settings.columnsToShow);
+                    UpdateResultList();
+                };
+                _settingsForm.Show();
+            }
+        }
+
+        private void Form_main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _settings.SaveToDisk(this);
         }
     }
 }

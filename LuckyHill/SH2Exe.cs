@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace LuckyHill
@@ -35,22 +36,33 @@ namespace LuckyHill
             _randomNumber = 1;
         }
 
-        public static void SimulateRandomInitialisedFrom(SanitizedPlayerInput inputs, Queue<ListViewItem> list, Func<bool> cancelPending, int maxIteration = 500)
+        public static void SimulateRandomInitialisedFrom(SanitizedPlayerInput inputs, UserSettings settings, Queue<ListViewItem> list, BackgroundWorker cancelPending, int maxIteration = 500)
         {
             ResetRandomSauce();
             int clockHourBuffer = 0;
             int clockMinuteBuffer = 0;
+            byte[] safeBuffer = new byte[4];
+            byte[] spinBuffer = new byte[4];
             byte[] carbonBuffer = new byte[4];
             byte[] bloodBuffer = new byte[4];
-            byte[] spinBuffer = new byte[4];
             byte[] bugBuffer = new byte[4];
             int hangmanBuffer = 0;
+            int faceBuffer = 0;
             int suitcaseBuffer = 0;
 
             int[] hangmenNumbers = new int[] { 0, 1, 2, 3, 4, 5 };
 
-            for (int iteration = 0; iteration < maxIteration; iteration++)
+            int startFrame = 0;
+            for(int i = 0; i < settings.lowerFrameBound + 424; i++, startFrame++)
             {
+                if (cancelPending.CancellationPending) { return; }
+                RandomSauceShaker(ref _randomNumber);
+            }
+
+            for (int iteration = 0, len = (settings.higherFrameBound + 424) - (settings.lowerFrameBound + 424); iteration <= len; iteration++)
+            {
+                if (cancelPending.CancellationPending) { return; }
+
                 int iterationSeed = RandomSauceShaker(ref _randomNumber);
 
                 //Unknown
@@ -75,12 +87,17 @@ namespace LuckyHill
 
                 //Safe puzzle
                 {
-                    RandomSauceShaker(ref iterationSeed);
-                    RandomSauceShaker(ref iterationSeed);
-                    RandomSauceShaker(ref iterationSeed);
-                    RandomSauceShaker(ref iterationSeed);
-
-                    RandomSauceShaker(ref iterationSeed);
+                    int i = 0;
+                    do
+                    {
+                        int s = RandomSauceShaker(ref iterationSeed) % 20;
+                        safeBuffer[i] = (byte)s;
+                        if (i > 0 && safeBuffer[i - 1] == s)
+                        {
+                            safeBuffer[i] = (byte)((s + 10) % 20);
+                        }
+                        ++i;
+                    } while (i < 4);
                 }
 
                 //Carbon, Blood, and Spin
@@ -137,9 +154,35 @@ namespace LuckyHill
                     } while (count > 0);
                 }
 
-                //Unknown
+                //Faces
                 {
-                    RandomSauceShaker(ref iterationSeed);
+                    faceBuffer = 0;
+                    int leftright = RandomSauceShaker(ref iterationSeed) % 3 + 1;
+                    if(settings.riddleDifficulty == UserSettings.RiddleDifficulty.Easy ||
+                        settings.riddleDifficulty == UserSettings.RiddleDifficulty.Normal)
+                    {
+                        leftright = 1;
+                    }
+                    if((leftright & 1) != 0)
+                    {
+                        faceBuffer |= 0x1;
+                    }
+
+                    int updown = RandomSauceShaker(ref iterationSeed) % 3 + 1;
+                    if (settings.riddleDifficulty == UserSettings.RiddleDifficulty.Easy ||
+                        settings.riddleDifficulty == UserSettings.RiddleDifficulty.Normal)
+                    {
+                        updown = 2;
+                    }
+                    if ((updown & 1) != 0)
+                    {
+                        faceBuffer |= 0x2;
+                    }
+                    if ((updown & 2) != 0)
+                    {
+                        faceBuffer |= 0x4;
+                    }
+
                     RandomSauceShaker(ref iterationSeed);
                 }
 
@@ -148,24 +191,31 @@ namespace LuckyHill
                     suitcaseBuffer = RandomSauceShaker(ref iterationSeed) % 19;
                 }
 
+                //Unknown
+                {
+                    RandomSauceShaker(ref iterationSeed);
+                    RandomSauceShaker(ref iterationSeed);
+                }
+
                 //Adjustements
                 {
-                    for(int i = 0; i < 4; i++)
+                    for (int i = 0; i < 4; i++)
                     {
+                        safeBuffer[i]++;
+                        spinBuffer[i]++;
                         carbonBuffer[i]++;
                         bloodBuffer[i]++;
-                        spinBuffer[i]++;
                         bugBuffer[i]++;
                     }
                 }
 
-                if (cancelPending()) { return; }
+                if (cancelPending.CancellationPending) { return; }
 
                 //Check if good to show
                 bool addResults = false;
                 if(!inputs.HasAnySet)
                 {
-                    addResults = true;
+                    if(settings.fillList) addResults = true;
                 }
                 else
                 {
@@ -193,7 +243,7 @@ namespace LuckyHill
                         addResults = false;
                 }
 
-                if (cancelPending()) { return; }
+                if (cancelPending.CancellationPending) { return; }
 
                 if (addResults)
                 {
@@ -202,19 +252,21 @@ namespace LuckyHill
                         list.Enqueue(
                             new ListViewItem(new string[]
                             {
-                            (iteration - 424).ToString(),
+                            (iteration + startFrame - 424).ToString(),
                             clockHourBuffer.ToString("00") + ":" + clockMinuteBuffer.ToString("00"),
+                            string.Concat(safeBuffer[0].ToString(), " ", safeBuffer[1].ToString(), " ", safeBuffer[2].ToString(), " ", safeBuffer[3].ToString()),
                             string.Concat(spinBuffer[0].ToString(), spinBuffer[1].ToString(), spinBuffer[2].ToString(), spinBuffer[3].ToString()),
                             string.Concat(bloodBuffer[0].ToString(), bloodBuffer[1].ToString(), bloodBuffer[2].ToString(), bloodBuffer[3].ToString()),
                             string.Concat(carbonBuffer[0].ToString(), carbonBuffer[1].ToString(), carbonBuffer[2].ToString(), carbonBuffer[3].ToString()),
                             string.Concat(bugBuffer[0].ToString(), bugBuffer[1].ToString(), bugBuffer[2].ToString()),
+                            string.Concat((faceBuffer & 0x1) != 0 ? "S " : "", (faceBuffer & 0x6) == 6 ? "U" : "", (faceBuffer & 0x6) == 4 ? "D D" : "", (faceBuffer & 0x6) == 2 ? "D" : ""),
                             hangmanBuffer.ToString(),
                             SuitcaseCodes[suitcaseBuffer]
                             }));
                     }
                 }
 
-                if (cancelPending()) {  return; }
+                if (cancelPending.CancellationPending) { return; }
             }
         }
     }
