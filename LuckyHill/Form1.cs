@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -130,13 +131,13 @@ namespace LuckyHill
                 try
                 {
                     if (text.Length != 3) return;
-                    code1 = (int)char.GetNumericValue(text[0]) - 1;
-                    code2 = (int)char.GetNumericValue(text[1]) - 1;
-                    code3 = (int)char.GetNumericValue(text[2]) - 1;
+                    code1 = (int)char.GetNumericValue(text[0]);
+                    code2 = (int)char.GetNumericValue(text[1]);
+                    code3 = (int)char.GetNumericValue(text[2]);
 
-                    if (code1 < 1 || code1 >= 9 ||
-                        code2 < 1 || code2 >= 9 ||
-                        code3 < 1 || code3 >= 9) return;
+                    if (code1 < 1 || code1 > 9 ||
+                        code2 < 1 || code2 > 9 ||
+                        code3 < 1 || code3 > 9) return;
                 }
                 catch { return; }
             }
@@ -165,10 +166,10 @@ namespace LuckyHill
                     code3 = (int)char.GetNumericValue(text[2]);
                     code4 = (int)char.GetNumericValue(text[3]);
 
-                    if (code1 < 1 || code1 >= 9 ||
-                        code2 < 1 || code2 >= 9 ||
-                        code3 < 1 || code3 >= 9 ||
-                        code4 < 1 || code4 >= 9) return;
+                    if (code1 < 1 || code1 > 9 ||
+                        code2 < 1 || code2 > 9 ||
+                        code3 < 1 || code3 > 9 ||
+                        code4 < 1 || code4 > 9) return;
                 }
                 catch { return; }
             }
@@ -192,24 +193,23 @@ namespace LuckyHill
             {
                 try
                 {
-                    if (text.Contains(':'))
+                    string time = text.Replace(":", "");
+                    if (time.Length > 4) return;
+                    if (time.Length == 1 || time.Length == 3) time += "0";
+                    hours = (int)char.GetNumericValue(time[0]) * 10;
+                    hours += (int)char.GetNumericValue(time[1]);
+                    if (time.Length == 2)
                     {
-                        string[] times = text.Split(':');
-                        if (times.Length != 2) return;
-                        hours = int.Parse(times[0]);
-                        minutes = int.Parse(times[1]);
+                        minutes = -1;
                     }
                     else
                     {
-                        if (text.Length != 4) return;
-                        hours = (int)char.GetNumericValue(text[0]) * 10;
-                        hours += (int)char.GetNumericValue(text[1]);
-                        minutes = (int)char.GetNumericValue(text[2]) * 10;
-                        minutes += (int)char.GetNumericValue(text[3]);
+                        minutes = (int)char.GetNumericValue(time[2]) * 10;
+                        minutes += (int)char.GetNumericValue(time[3]);
                     }
 
                     if (hours < 0 || hours >= 24) return;
-                    if (minutes < 0 || minutes >= 60) return;
+                    if (minutes < -1 || minutes >= 60) return;
                 }
                 catch { return; }
             }
@@ -334,6 +334,130 @@ namespace LuckyHill
         private void Form_main_FormClosing(object sender, FormClosingEventArgs e)
         {
             _settings.SaveToDisk(this);
+        }
+
+        private void exportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog exportDialog = new SaveFileDialog();
+            exportDialog.Filter = "Text file|*.txt";
+            exportDialog.Title = "Export current combinations";
+            exportDialog.ShowDialog();
+            if (exportDialog.FileName != "")
+            {
+                using (FileStream fs = (FileStream)exportDialog.OpenFile())
+                using (TextWriter writer = new StreamWriter(fs))
+                {
+                    writer.WriteLine(FormatRowHeaderToTxt());
+                    ListView.ListViewItemCollection itemCollection = lv_results.Items;
+
+                    for (int i = 0; i < itemCollection.Count; i++)
+                    {
+                        ListViewItem item = itemCollection[i];
+                        writer.WriteLine(FormatRowToTxt(item.SubItems));
+                    }
+                }
+            }
+        }
+
+        private string FormatRowHeaderToTxt()
+        {
+            RNGColumns columns = _settings.columnsToShow;
+            return columns.ToString();
+        }
+        private string FormatRowToTxt(ListViewItem.ListViewSubItemCollection row)
+        {
+            string result = "";
+            RNGColumns columns = _settings.columnsToShow;
+
+            for(int currentColumn = 0; currentColumn < row.Count; currentColumn++)
+            {
+                if (columns.HasFlag(RNGColumns.Frame))
+                {
+                    result += "(" + row[currentColumn].Text + ")";
+                    columns &= ~RNGColumns.Frame;
+                }
+                else if (columns.HasFlag(RNGColumns.Clock))
+                {
+                    result += row[currentColumn].Text;
+                    columns &= ~RNGColumns.Clock;
+                }
+                else if (columns.HasFlag(RNGColumns.Safe))
+                {
+                    string safeLock = row[currentColumn].Text;
+                    string[] digits = safeLock.Split(' ');
+                    for (int i = 0; i < digits.Length; i++)
+                    {
+                        string digit = digits[i];
+                        if (digit.Length == 1)
+                        {
+                            result += " ";
+                        }
+                        result += digit;
+                        if (i < digits.Length - 1)
+                        {
+                            result += " ";
+                        }
+                    }
+                    columns &= ~RNGColumns.Safe;
+                }
+                else if (columns.HasFlag(RNGColumns.Lock))
+                {
+                    result += row[currentColumn].Text;
+                    columns &= ~RNGColumns.Lock;
+                }
+                else if (columns.HasFlag(RNGColumns.Blood))
+                {
+                    result += row[currentColumn].Text;
+                    columns &= ~RNGColumns.Blood;
+                }
+                else if (columns.HasFlag(RNGColumns.Carbon))
+                {
+                    result += row[currentColumn].Text;
+                    columns &= ~RNGColumns.Carbon;
+                }
+                else if (columns.HasFlag(RNGColumns.Bug))
+                {
+                    result += row[currentColumn].Text;
+                    columns &= ~RNGColumns.Bug;
+                }
+                else if (columns.HasFlag(RNGColumns.Faces))
+                {
+                    string faces = row[currentColumn].Text;
+                    string[] moves = faces.Split(' ');
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (i < moves.Length)
+                        {
+                            result += moves[i];
+                        }
+                        else
+                        {
+                            result += " ";
+                        }
+                        if (i < 2)
+                        {
+                            result += " ";
+                        }
+                    }
+                    columns &= ~RNGColumns.Faces;
+                }
+                else if (columns.HasFlag(RNGColumns.Arsonist))
+                {
+                    result += row[currentColumn].Text;
+                    columns &= ~RNGColumns.Arsonist;
+                }
+                else if (columns.HasFlag(RNGColumns.Suitcase))
+                {
+                    result += row[currentColumn].Text;
+                    columns &= ~RNGColumns.Suitcase;
+                }
+
+                if (currentColumn < row.Count - 1)
+                {
+                    result += ", ";
+                }
+            }
+            return result;
         }
     }
 }

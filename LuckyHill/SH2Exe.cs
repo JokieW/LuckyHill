@@ -36,21 +36,39 @@ namespace LuckyHill
             _randomNumber = 1;
         }
 
+
+        private static byte[] _safeBuffer = new byte[4];
+        private static byte[] _spinBuffer = new byte[4];
+        private static byte[] _carbonBuffer = new byte[4];
+        private static byte[] _bloodBuffer = new byte[4];
+        private static byte[] _bugBuffer = new byte[4];
+        private static int[] _hangmenNumbers = new int[] { 0, 1, 2, 3, 4, 5 };
+        private static void ResetBuffers()
+        {
+            for(int i = 0; i < 4; i++)
+            {
+                _safeBuffer[i] = default;
+                _spinBuffer[i] = default;
+                _carbonBuffer[i] = default;
+                _bloodBuffer[i] = default;
+                _bugBuffer[i] = default;
+            }
+            for (int i = 0; i < 6; i++)
+            {
+                _hangmenNumbers[i] = i;
+            }
+        }
+
+
         public static void SimulateRandomInitialisedFrom(SanitizedPlayerInput inputs, UserSettings settings, Queue<ListViewItem> list, BackgroundWorker cancelPending, int maxIteration = 500)
         {
             ResetRandomSauce();
+            ResetBuffers();
             int clockHourBuffer = 0;
             int clockMinuteBuffer = 0;
-            byte[] safeBuffer = new byte[4];
-            byte[] spinBuffer = new byte[4];
-            byte[] carbonBuffer = new byte[4];
-            byte[] bloodBuffer = new byte[4];
-            byte[] bugBuffer = new byte[4];
             int hangmanBuffer = 0;
             int faceBuffer = 0;
             int suitcaseBuffer = 0;
-
-            int[] hangmenNumbers = new int[] { 0, 1, 2, 3, 4, 5 };
 
             int startFrame = 0;
             for(int i = 0; i < settings.lowerFrameBound + 424; i++, startFrame++)
@@ -91,10 +109,10 @@ namespace LuckyHill
                     do
                     {
                         int s = RandomSauceShaker(ref iterationSeed) % 20;
-                        safeBuffer[i] = (byte)s;
-                        if (i > 0 && safeBuffer[i - 1] == s)
+                        _safeBuffer[i] = (byte)s;
+                        if (i > 0 && _safeBuffer[i - 1] == s)
                         {
-                            safeBuffer[i] = (byte)((s + 10) % 20);
+                            _safeBuffer[i] = (byte)((s + 10) % 20);
                         }
                         ++i;
                     } while (i < 4);
@@ -107,40 +125,40 @@ namespace LuckyHill
                     int i = 0;
                     do
                     {
-                        carbonBuffer[i] = (byte)(RandomSauceShaker(ref iterationSeed) % 9);
-                        bloodBuffer[i] = (byte)(RandomSauceShaker(ref iterationSeed) % 9);
-                        spinBuffer[i] = (byte)((RandomSauceShaker(ref iterationSeed) % 8 + bloodBuffer[i++] + 1) % 9);
+                        _carbonBuffer[i] = (byte)(RandomSauceShaker(ref iterationSeed) % 9);
+                        _bloodBuffer[i] = (byte)(RandomSauceShaker(ref iterationSeed) % 9);
+                        _spinBuffer[i] = (byte)((RandomSauceShaker(ref iterationSeed) % 8 + _bloodBuffer[i++] + 1) % 9);
                     } while (i < 4);
                 }
 
                 //Bug room
                 {
-                    bugBuffer[0] = (byte)(RandomSauceShaker(ref iterationSeed) % 9);
+                    _bugBuffer[0] = (byte)(RandomSauceShaker(ref iterationSeed) % 9);
                     int bug1_15 = RandomSauceShaker(ref iterationSeed) % 8;
-                    bugBuffer[1] = (byte)bug1_15;
-                    if(bug1_15 >= bugBuffer[0])
+                    _bugBuffer[1] = (byte)bug1_15;
+                    if(bug1_15 >= _bugBuffer[0])
                     {
-                        bugBuffer[1] = (byte)(bug1_15 + 1);
+                        _bugBuffer[1] = (byte)(bug1_15 + 1);
                     }
                     int bug2_16 = RandomSauceShaker(ref iterationSeed);
                     int bug2_18 = bug2_16;
                     int bug2_17 = bug2_16 % 7;
                     int bug2_19 = bug2_16 % 7;
-                    bugBuffer[2] = (byte)(bug2_18 % 7);
-                    if(bug2_17 >= bugBuffer[0])
+                    _bugBuffer[2] = (byte)(bug2_18 % 7);
+                    if(bug2_17 >= _bugBuffer[0])
                     {
-                        bugBuffer[2] = (byte)(++bug2_19);
+                        _bugBuffer[2] = (byte)(++bug2_19);
                     }
-                    if(bug2_17 >= bugBuffer[1])
+                    if(bug2_17 >= _bugBuffer[1])
                     {
-                        bugBuffer[2] = (byte)(bug2_19 + 1);
+                        _bugBuffer[2] = (byte)(bug2_19 + 1);
                     }
                 }
 
                 //Hangman
                 for (int i = 0; i < 6; i++)
                 {
-                    hangmenNumbers[i] = i;
+                    _hangmenNumbers[i] = i;
                 }
                 {
                     int i = 0;
@@ -148,11 +166,11 @@ namespace LuckyHill
                     do
                     {
                         int h = i + RandomSauceShaker(ref iterationSeed) % count;
-                        int h2 = hangmenNumbers[i++];
+                        int h2 = _hangmenNumbers[i++];
                         --count;
-                        int distribution = hangmenNumbers[h] + 6 * hangmanBuffer;
-                        if (hangmenNumbers[h] == 5) hangmanBuffer = 7 - i;
-                        hangmenNumbers[h] = h2;
+                        int distribution = _hangmenNumbers[h] + 6 * hangmanBuffer;
+                        if (_hangmenNumbers[h] == 5) hangmanBuffer = 7 - i;
+                        _hangmenNumbers[h] = h2;
                     } while (count > 0);
                 }
 
@@ -201,11 +219,11 @@ namespace LuckyHill
                 {
                     for (int i = 0; i < 4; i++)
                     {
-                        safeBuffer[i]++;
-                        spinBuffer[i]++;
-                        carbonBuffer[i]++;
-                        bloodBuffer[i]++;
-                        bugBuffer[i]++;
+                        _safeBuffer[i]++;
+                        _spinBuffer[i]++;
+                        _carbonBuffer[i]++;
+                        _bloodBuffer[i]++;
+                        _bugBuffer[i]++;
                     }
                 }
 
@@ -221,19 +239,19 @@ namespace LuckyHill
                 {
                     addResults = true;
                     if (inputs.HasClockSet && 
-                        (inputs.clockHours != clockHourBuffer || inputs.clockMinutes != clockMinuteBuffer))
+                        (inputs.clockHours != clockHourBuffer || (inputs.clockMinutes != -1 && inputs.clockMinutes != clockMinuteBuffer)))
                         addResults = false;
                     if (addResults && inputs.HasSpinSet &&
-                        (inputs.spin[0] != spinBuffer[0] || inputs.spin[1] != spinBuffer[1] || inputs.spin[2] != spinBuffer[2] || inputs.spin[3] != spinBuffer[3]))
+                        (inputs.spin[0] != _spinBuffer[0] || inputs.spin[1] != _spinBuffer[1] || inputs.spin[2] != _spinBuffer[2] || inputs.spin[3] != _spinBuffer[3]))
                         addResults = false;
                     if (addResults && inputs.HasBloodSet &&
-                        (inputs.blood[0] != bloodBuffer[0] || inputs.blood[1] != bloodBuffer[1] || inputs.blood[2] != bloodBuffer[2] || inputs.blood[3] != bloodBuffer[3]))
+                        (inputs.blood[0] != _bloodBuffer[0] || inputs.blood[1] != _bloodBuffer[1] || inputs.blood[2] != _bloodBuffer[2] || inputs.blood[3] != _bloodBuffer[3]))
                         addResults = false;
                     if (addResults && inputs.HasCarbonSet &&
-                        (inputs.carbon[0] != carbonBuffer[0] || inputs.carbon[1] != carbonBuffer[1] || inputs.carbon[2] != carbonBuffer[2] || inputs.carbon[3] != carbonBuffer[3]))
+                        (inputs.carbon[0] != _carbonBuffer[0]  || inputs.carbon[1] != _carbonBuffer[1] || inputs.carbon[2] != _carbonBuffer[2] || inputs.carbon[3] != _carbonBuffer[3]))
                         addResults = false;
                     if (addResults && inputs.HasBugSet &&
-                        (inputs.bug[0] != bugBuffer[0] || inputs.bug[1] != bugBuffer[1] || inputs.bug[2] != bugBuffer[2]))
+                        (inputs.bug[0] != _bugBuffer[0] || inputs.bug[1] != _bugBuffer[1] || inputs.bug[2] != _bugBuffer[2]))
                         addResults = false;
                     if (addResults && inputs.HasHangmanSet &&
                         (inputs.hangman != hangmanBuffer))
@@ -254,11 +272,11 @@ namespace LuckyHill
                             {
                             (iteration + startFrame - 424).ToString(),
                             clockHourBuffer.ToString("00") + ":" + clockMinuteBuffer.ToString("00"),
-                            string.Concat(safeBuffer[0].ToString(), " ", safeBuffer[1].ToString(), " ", safeBuffer[2].ToString(), " ", safeBuffer[3].ToString()),
-                            string.Concat(spinBuffer[0].ToString(), spinBuffer[1].ToString(), spinBuffer[2].ToString(), spinBuffer[3].ToString()),
-                            string.Concat(bloodBuffer[0].ToString(), bloodBuffer[1].ToString(), bloodBuffer[2].ToString(), bloodBuffer[3].ToString()),
-                            string.Concat(carbonBuffer[0].ToString(), carbonBuffer[1].ToString(), carbonBuffer[2].ToString(), carbonBuffer[3].ToString()),
-                            string.Concat(bugBuffer[0].ToString(), bugBuffer[1].ToString(), bugBuffer[2].ToString()),
+                            string.Concat(_safeBuffer[0].ToString(), " ", _safeBuffer[1].ToString(), " ", _safeBuffer[2].ToString(), " ", _safeBuffer[3].ToString()),
+                            string.Concat(_spinBuffer[0].ToString(), _spinBuffer[1].ToString(), _spinBuffer[2].ToString(), _spinBuffer[3].ToString()),
+                            string.Concat(_bloodBuffer[0].ToString(), _bloodBuffer[1].ToString(), _bloodBuffer[2].ToString(), _bloodBuffer[3].ToString()),
+                            string.Concat(_carbonBuffer[0].ToString(), _carbonBuffer[1].ToString(), _carbonBuffer[2].ToString(), _carbonBuffer[3].ToString()),
+                            string.Concat(_bugBuffer[0].ToString(), _bugBuffer[1].ToString(), _bugBuffer[2].ToString()),
                             string.Concat((faceBuffer & 0x1) != 0 ? "S " : "", (faceBuffer & 0x6) == 6 ? "U" : "", (faceBuffer & 0x6) == 4 ? "D D" : "", (faceBuffer & 0x6) == 2 ? "D" : ""),
                             hangmanBuffer.ToString(),
                             SuitcaseCodes[suitcaseBuffer]

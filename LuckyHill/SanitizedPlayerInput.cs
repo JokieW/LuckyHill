@@ -17,7 +17,7 @@ namespace LuckyHill
         public int hangman;
         public int suitcase;
 
-        public bool HasClockSet { get => clockHours != -1 && clockMinutes != -1; }
+        public bool HasClockSet { get => clockHours != -1; }
         public bool HasSpinSet { get => spin[0] != 0 && spin[1] != 0 && spin[2] != 0 && spin[3] != 0; }
         public bool HasBloodSet { get => blood[0] != 0 && blood[1] != 0 && blood[2] != 0 && blood[3] != 0; }
         public bool HasCarbonSet { get => carbon[0] != 0 && carbon[1] != 0 && carbon[2] != 0 && carbon[3] != 0; }

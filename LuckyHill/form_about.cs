@@ -26,5 +26,10 @@ namespace LuckyHill
         {
             System.Diagnostics.Process.Start((sender as LinkLabel).Text);
         }
+
+        private void lbl_version_Click_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }
