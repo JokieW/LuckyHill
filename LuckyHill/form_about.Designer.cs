@@ -44,7 +44,7 @@
             this.lbl_version.Name = "lbl_version";
             this.lbl_version.Size = new System.Drawing.Size(322, 44);
             this.lbl_version.TabIndex = 17;
-            this.lbl_version.Text = "1.2\r\nJuly 12 2020";
+            this.lbl_version.Text = "1.3\r\nJuly 15 2020";
             this.lbl_version.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.lbl_version.Click += new System.EventHandler(this.lbl_version_Click_1);
             // 

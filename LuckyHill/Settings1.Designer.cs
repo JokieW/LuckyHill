@@ -12,7 +12,7 @@ namespace LuckyHill {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.6.0.0")]
     internal sealed partial class Settings1 : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings1 defaultInstance = ((Settings1)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings1())));
@@ -116,6 +116,54 @@ namespace LuckyHill {
             }
             set {
                 this["FillListWhenNoFilter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool GotLeaveEnding {
+            get {
+                return ((bool)(this["GotLeaveEnding"]));
+            }
+            set {
+                this["GotLeaveEnding"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool GotMariaEnding {
+            get {
+                return ((bool)(this["GotMariaEnding"]));
+            }
+            set {
+                this["GotMariaEnding"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool GotWaterEnding {
+            get {
+                return ((bool)(this["GotWaterEnding"]));
+            }
+            set {
+                this["GotWaterEnding"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IgnoreBoundsWhenSearching {
+            get {
+                return ((bool)(this["IgnoreBoundsWhenSearching"]));
+            }
+            set {
+                this["IgnoreBoundsWhenSearching"] = value;
             }
         }
     }

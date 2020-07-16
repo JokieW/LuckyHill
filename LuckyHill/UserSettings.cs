@@ -30,10 +30,11 @@ namespace LuckyHill
             Easy = 0,
             Normal =  1,
             Hard = 2,
-            Extra = 3 
+            Extra = 3
         }
 
         public bool fillList = true;
+        public bool ignoreBounds = false;
 
         public RNGColumns columnsToShow = RNGColumns.Frame | RNGColumns.Clock | RNGColumns.Safe | RNGColumns.Lock |
             RNGColumns.Blood | RNGColumns.Carbon | RNGColumns.Bug | RNGColumns.Faces | RNGColumns.Arsonist |  RNGColumns.Suitcase;
@@ -43,14 +44,23 @@ namespace LuckyHill
 
         public RiddleDifficulty riddleDifficulty = RiddleDifficulty.Hard;
 
+        public bool gotLeaveEnding = true;
+        public bool gotMariaEnding = true;
+        public bool gotWaterEnding = true;
+
         public int lowerFrameBound = -100;
         public int higherFrameBound = 100;
 
         public void LoadFromDisk(form_main main)
         {
+            fillList = Settings1.Default.FillListWhenNoFilter;
+            ignoreBounds = Settings1.Default.IgnoreBoundsWhenSearching;
             filtersToShow = (RNGColumns)Settings1.Default.FilterColumns;
             columnsToShow = (RNGColumns)Settings1.Default.ResultColumns;
             riddleDifficulty = (RiddleDifficulty)Settings1.Default.RiddleDifficulty;
+            gotLeaveEnding = Settings1.Default.GotLeaveEnding;
+            gotMariaEnding = Settings1.Default.GotMariaEnding;
+            gotWaterEnding = Settings1.Default.GotWaterEnding;
             lowerFrameBound = Settings1.Default.FrameLowerBound;
             higherFrameBound = Settings1.Default.FrameHigherBound;
             main.Width = Settings1.Default.MainFormWidth;
@@ -59,9 +69,14 @@ namespace LuckyHill
 
         public void SaveToDisk(form_main main)
         {
+            Settings1.Default.FillListWhenNoFilter = fillList;
+            Settings1.Default.IgnoreBoundsWhenSearching = ignoreBounds;
             Settings1.Default.FilterColumns = (int)filtersToShow;
             Settings1.Default.ResultColumns = (int)columnsToShow;
             Settings1.Default.RiddleDifficulty = (int)riddleDifficulty;
+            Settings1.Default.GotLeaveEnding = gotLeaveEnding;
+            Settings1.Default.GotMariaEnding = gotMariaEnding;
+            Settings1.Default.GotWaterEnding = gotWaterEnding;
             Settings1.Default.FrameLowerBound = lowerFrameBound;
             Settings1.Default.FrameHigherBound = higherFrameBound;
             Settings1.Default.MainFormWidth = main.Width;

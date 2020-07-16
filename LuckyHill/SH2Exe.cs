@@ -71,13 +71,22 @@ namespace LuckyHill
             int suitcaseBuffer = 0;
 
             int startFrame = 0;
-            for(int i = 0; i < settings.lowerFrameBound + 424; i++, startFrame++)
+
+            bool ignoreBounds = settings.ignoreBounds &&
+                (inputs.HasClockSet || inputs.HasSuitcaseSet || inputs.HasSpinSet ||
+                inputs.HasBloodSet || inputs.HasCarbonSet || inputs.HasBugSet ||
+                inputs.HasHangmanSet || inputs.HasSuitcaseSet);
+
+            int lowerFrameBound = ignoreBounds ? 0 : settings.lowerFrameBound + 427;
+            int higherFrameBound = ignoreBounds ? int.MaxValue : settings.higherFrameBound + 427;
+
+            for (int i = 0; i < lowerFrameBound; i++, startFrame++)
             {
                 if (cancelPending.CancellationPending) { return; }
                 RandomSauceShaker(ref _randomNumber);
             }
 
-            for (int iteration = 0, len = (settings.higherFrameBound + 424) - (settings.lowerFrameBound + 424); iteration <= len; iteration++)
+            for (int iteration = 0, len = higherFrameBound - lowerFrameBound; iteration <= len; iteration++)
             {
                 if (cancelPending.CancellationPending) { return; }
 
@@ -85,9 +94,27 @@ namespace LuckyHill
 
                 //Unknown
                 {
-                    RandomSauceShaker(ref iterationSeed);
-                    RandomSauceShaker(ref iterationSeed);
-                    RandomSauceShaker(ref iterationSeed);
+                    int endings = 0;
+                    if (settings.gotLeaveEnding) endings++;
+                    if (settings.gotMariaEnding) endings++;
+                    if (settings.gotWaterEnding) endings++;
+
+                    if(endings == 1)
+                    {
+                        if (settings.gotLeaveEnding)
+                        {
+                            RandomSauceShaker(ref iterationSeed);
+                        }
+                        if (settings.gotMariaEnding)
+                        {
+                            RandomSauceShaker(ref iterationSeed);
+                        }
+                        if (settings.gotWaterEnding)
+                        {
+                            RandomSauceShaker(ref iterationSeed);
+                        }
+                        
+                    }
                 }
 
                 //Clock
@@ -270,7 +297,7 @@ namespace LuckyHill
                         list.Enqueue(
                             new ListViewItem(new string[]
                             {
-                            (iteration + startFrame - 424).ToString(),
+                            (iteration + startFrame - 427).ToString(),
                             clockHourBuffer.ToString("00") + ":" + clockMinuteBuffer.ToString("00"),
                             string.Concat(_safeBuffer[0].ToString(), " ", _safeBuffer[1].ToString(), " ", _safeBuffer[2].ToString(), " ", _safeBuffer[3].ToString()),
                             string.Concat(_spinBuffer[0].ToString(), _spinBuffer[1].ToString(), _spinBuffer[2].ToString(), _spinBuffer[3].ToString()),

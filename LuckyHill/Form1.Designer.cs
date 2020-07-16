@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(form_main));
             this.txt_userClock = new System.Windows.Forms.TextBox();
             this.txt_userSpin = new System.Windows.Forms.TextBox();
             this.txt_playerBlood = new System.Windows.Forms.TextBox();
@@ -51,8 +52,9 @@
             this.tmr_update = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tooltip = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -65,6 +67,8 @@
             this.txt_userClock.Name = "txt_userClock";
             this.txt_userClock.Size = new System.Drawing.Size(51, 26);
             this.txt_userClock.TabIndex = 1;
+            this.tooltip.SetToolTip(this.txt_userClock, "Time of the clock in Wood Side Apartments room 209.\r\nYou can search with the form" +
+        "ats hh:mm, hhmm or hh.\r\nMidnight/Noon is 00.\r\n");
             this.txt_userClock.TextChanged += new System.EventHandler(this.Txt_userClock_TextChanged);
             // 
             // txt_userSpin
@@ -75,6 +79,8 @@
             this.txt_userSpin.Name = "txt_userSpin";
             this.txt_userSpin.Size = new System.Drawing.Size(42, 26);
             this.txt_userSpin.TabIndex = 2;
+            this.tooltip.SetToolTip(this.txt_userSpin, "Initial cylinder lock positions for the Louis puzzle box.\r\nYou can search with th" +
+        "e format xxxx.\r\n");
             this.txt_userSpin.TextChanged += new System.EventHandler(this.Txt_userSpin_TextChanged);
             // 
             // txt_playerBlood
@@ -85,6 +91,8 @@
             this.txt_playerBlood.Name = "txt_playerBlood";
             this.txt_playerBlood.Size = new System.Drawing.Size(42, 26);
             this.txt_playerBlood.TabIndex = 3;
+            this.tooltip.SetToolTip(this.txt_playerBlood, "Code for the cylinder lock for the Louise puzzle box.\r\nYou can search with the fo" +
+        "rmat xxxx.\r\n");
             this.txt_playerBlood.TextChanged += new System.EventHandler(this.Txt_playerBlood_TextChanged);
             // 
             // txt_userBug
@@ -95,6 +103,7 @@
             this.txt_userBug.Name = "txt_userBug";
             this.txt_userBug.Size = new System.Drawing.Size(33, 26);
             this.txt_userBug.TabIndex = 5;
+            this.tooltip.SetToolTip(this.txt_userBug, "Code for the keypad in the bug room.\r\nYou can search with the format xxx.\r\n\r\n");
             this.txt_userBug.TextChanged += new System.EventHandler(this.Txt_userBug_TextChanged);
             // 
             // txt_userHangmen
@@ -105,6 +114,8 @@
             this.txt_userHangmen.Name = "txt_userHangmen";
             this.txt_userHangmen.Size = new System.Drawing.Size(50, 26);
             this.txt_userHangmen.TabIndex = 6;
+            this.tooltip.SetToolTip(this.txt_userHangmen, "Arsonist to pull down.\r\nYou can search with the numbers 1 to 6.\r\nThe numbers are " +
+        "laid out like so:\r\n_____\r\n|door|__\r\n| 1  2  3 |\r\n| 6  5  4 |\r\n---------\r\n\r\n");
             this.txt_userHangmen.TextChanged += new System.EventHandler(this.Txt_userHangmen_TextChanged);
             // 
             // txt_userSuitcase
@@ -115,6 +126,7 @@
             this.txt_userSuitcase.Name = "txt_userSuitcase";
             this.txt_userSuitcase.Size = new System.Drawing.Size(67, 26);
             this.txt_userSuitcase.TabIndex = 7;
+            this.tooltip.SetToolTip(this.txt_userSuitcase, resources.GetString("txt_userSuitcase.ToolTip"));
             this.txt_userSuitcase.TextChanged += new System.EventHandler(this.Txt_userSuitcase_TextChanged);
             // 
             // lbl_playerClock
@@ -125,6 +137,8 @@
             this.lbl_playerClock.Size = new System.Drawing.Size(34, 13);
             this.lbl_playerClock.TabIndex = 6;
             this.lbl_playerClock.Text = "Clock";
+            this.tooltip.SetToolTip(this.lbl_playerClock, "Time of the clock in Wood Side Apartments room 209.\r\nYou can search with the form" +
+        "ats hh:mm, hhmm or hh.\r\nMidnight/Noon is 00.\r\n\r\n");
             // 
             // lbl_playerSpin
             // 
@@ -134,6 +148,8 @@
             this.lbl_playerSpin.Size = new System.Drawing.Size(31, 13);
             this.lbl_playerSpin.TabIndex = 7;
             this.lbl_playerSpin.Text = "Lock";
+            this.tooltip.SetToolTip(this.lbl_playerSpin, "Initial cylinder lock positions for the Louis puzzle box.\r\nYou can search with th" +
+        "e format xxxx.\r\n\r\n");
             // 
             // lbl_playerBlood
             // 
@@ -143,6 +159,8 @@
             this.lbl_playerBlood.Size = new System.Drawing.Size(34, 13);
             this.lbl_playerBlood.TabIndex = 8;
             this.lbl_playerBlood.Text = "Blood";
+            this.tooltip.SetToolTip(this.lbl_playerBlood, "Code for the cylinder lock for the Louise puzzle box.\r\nYou can search with the fo" +
+        "rmat xxxx.\r\n");
             // 
             // lbl_playerBug
             // 
@@ -152,6 +170,7 @@
             this.lbl_playerBug.Size = new System.Drawing.Size(26, 13);
             this.lbl_playerBug.TabIndex = 9;
             this.lbl_playerBug.Text = "Bug";
+            this.tooltip.SetToolTip(this.lbl_playerBug, "Code for the keypad in the bug room.\r\nYou can search with the format xxx.\r\n\r\n");
             // 
             // lbl_playerHangmen
             // 
@@ -161,6 +180,8 @@
             this.lbl_playerHangmen.Size = new System.Drawing.Size(44, 13);
             this.lbl_playerHangmen.TabIndex = 10;
             this.lbl_playerHangmen.Text = "Arsonist";
+            this.tooltip.SetToolTip(this.lbl_playerHangmen, "Arsonist to pull down.\r\nYou can search with the numbers 1 to 6.\r\nThe numbers are " +
+        "laid out like so:\r\n_____\r\n|door|__\r\n| 1  2  3 |\r\n| 6  5  4 |\r\n---------\r\n");
             // 
             // lbl_playerSuitcase
             // 
@@ -170,6 +191,7 @@
             this.lbl_playerSuitcase.Size = new System.Drawing.Size(48, 13);
             this.lbl_playerSuitcase.TabIndex = 11;
             this.lbl_playerSuitcase.Text = "Suitcase";
+            this.tooltip.SetToolTip(this.lbl_playerSuitcase, resources.GetString("lbl_playerSuitcase.ToolTip"));
             // 
             // groupBox1
             // 
@@ -217,6 +239,8 @@
             this.lbl_carbon.Size = new System.Drawing.Size(41, 13);
             this.lbl_carbon.TabIndex = 13;
             this.lbl_carbon.Text = "Carbon";
+            this.tooltip.SetToolTip(this.lbl_carbon, "Code for the push-button lock on the Louise puzzle box.\r\nYou can search with the " +
+        "format xxxx.");
             // 
             // txt_playerCarbon
             // 
@@ -226,6 +250,8 @@
             this.txt_playerCarbon.Name = "txt_playerCarbon";
             this.txt_playerCarbon.Size = new System.Drawing.Size(42, 26);
             this.txt_playerCarbon.TabIndex = 4;
+            this.tooltip.SetToolTip(this.txt_playerCarbon, "Code for the push-button lock on the Louise puzzle box.\r\nYou can search with the " +
+        "format xxxx.\r\n");
             this.txt_playerCarbon.TextChanged += new System.EventHandler(this.Txt_playerCarbon_TextChanged);
             // 
             // label7
@@ -287,19 +313,19 @@
             this.aboutToolStripMenuItem.Text = "Settings";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
-            // aboutToolStripMenuItem1
-            // 
-            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(52, 20);
-            this.aboutToolStripMenuItem1.Text = "About";
-            this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.AboutToolStripMenuItem1_Click);
-            // 
             // exportToolStripMenuItem
             // 
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.Size = new System.Drawing.Size(53, 20);
             this.exportToolStripMenuItem.Text = "Export";
             this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
+            // 
+            // aboutToolStripMenuItem1
+            // 
+            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(52, 20);
+            this.aboutToolStripMenuItem1.Text = "About";
+            this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.AboutToolStripMenuItem1_Click);
             // 
             // form_main
             // 
@@ -350,6 +376,7 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+        private System.Windows.Forms.ToolTip tooltip;
     }
 }
 

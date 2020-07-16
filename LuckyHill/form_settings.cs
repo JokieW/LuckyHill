@@ -32,9 +32,13 @@ namespace LuckyHill
         }
 
         bool tempFillList;
+        bool tempIgnoreBounds;
         RNGColumns tempFilters;
         RNGColumns tempColumns;
         RiddleDifficulty tempRiddleDifficulty;
+        bool tempGotLeaveEnding;
+        bool tempGotMariaEnding;
+        bool tempGotWaterEnding;
         int tempFrameLower;
         int tempFrameHigher;
 
@@ -43,16 +47,24 @@ namespace LuckyHill
             _settings = settings;
 
             tempFillList = _settings.fillList;
+            tempIgnoreBounds = _settings.ignoreBounds;
             tempFilters = _settings.filtersToShow;
             tempColumns = _settings.columnsToShow;
             tempRiddleDifficulty = _settings.riddleDifficulty;
+            tempGotLeaveEnding = _settings.gotLeaveEnding;
+            tempGotMariaEnding = _settings.gotMariaEnding;
+            tempGotWaterEnding = _settings.gotWaterEnding;
             tempFrameLower = _settings.lowerFrameBound;
             tempFrameHigher = _settings.higherFrameBound;
 
             cb_fillListNoFilter.Checked = _settings.fillList;
+            cb_ignoreBoundsWhenSearching.Checked = _settings.ignoreBounds;
             txt_lowerFrameBound.Text = _settings.lowerFrameBound.ToString();
             txt_higherFrameBound.Text = _settings.higherFrameBound.ToString();
             cmb_riddleSetting.SelectedIndex = (int)_settings.riddleDifficulty;
+            cb_gotLeaveEnding.Checked = _settings.gotLeaveEnding;
+            cb_gotMariaEnding.Checked = _settings.gotMariaEnding;
+            cb_gotWaterEnding.Checked = _settings.gotWaterEnding;
 
             for (int i = 0, len = cbl_filters.Items.Count; i < len; i++)
             {
@@ -67,9 +79,13 @@ namespace LuckyHill
         private void Form_settings_FormClosing(object sender, FormClosingEventArgs e)
         {
             _settings.fillList = tempFillList;
+            _settings.ignoreBounds = tempIgnoreBounds;
             _settings.filtersToShow = tempFilters;
             _settings.columnsToShow = tempColumns;
             _settings.riddleDifficulty = tempRiddleDifficulty;
+            _settings.gotLeaveEnding = tempGotLeaveEnding;
+            _settings.gotMariaEnding = tempGotMariaEnding;
+            _settings.gotWaterEnding = tempGotWaterEnding;
             _settings.lowerFrameBound = tempFrameLower;
             _settings.higherFrameBound = tempFrameHigher;
         }
@@ -77,6 +93,11 @@ namespace LuckyHill
         private void Cb_fillListNoFilter_CheckedChanged(object sender, EventArgs e)
         {
             tempFillList = ((CheckBox)sender).Checked;
+        }
+
+        private void cb_ignoreBoundsWhenSearching_CheckedChanged(object sender, EventArgs e)
+        {
+            tempIgnoreBounds = ((CheckBox)sender).Checked;
         }
 
         private void Txt_lowerFrameBound_TextChanged(object sender, EventArgs e)
@@ -95,9 +116,9 @@ namespace LuckyHill
                         toSet = tempFrameHigher - 1;
                         doTextChange = true;
                     }
-                    if (toSet < -424)
+                    if (toSet < -427)
                     {
-                        toSet = -424;
+                        toSet = -427;
                         doTextChange = true;
                     }
                     tempFrameLower = toSet;
@@ -131,11 +152,6 @@ namespace LuckyHill
                         toSet = tempFrameLower + 1;
                         doTextChange = true;
                     }
-                    if (toSet > 100000)
-                    {
-                        toSet = 100000;
-                        doTextChange = true;
-                    }
                     tempFrameHigher = toSet;
                 }
             }
@@ -155,6 +171,21 @@ namespace LuckyHill
         {
             ComboBox cb = sender as ComboBox;
             tempRiddleDifficulty = (RiddleDifficulty)cb.SelectedIndex;
+        }
+
+        private void cb_gotLeaveEnding_CheckedChanged(object sender, EventArgs e)
+        {
+            tempGotLeaveEnding = ((CheckBox)sender).Checked;
+        }
+
+        private void cb_gotMariaEnding_CheckedChanged(object sender, EventArgs e)
+        {
+            tempGotMariaEnding = ((CheckBox)sender).Checked;
+        }
+
+        private void cb_gotWaterEnding_CheckedChanged(object sender, EventArgs e)
+        {
+            tempGotWaterEnding = ((CheckBox)sender).Checked;
         }
 
         private void Cbl_filters_SelectedIndexChanged(object sender, EventArgs e)
