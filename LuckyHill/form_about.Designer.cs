@@ -80,7 +80,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(322, 49);
             this.label3.TabIndex = 16;
-            this.label3.Text = "By Jokie#0001";
+            this.label3.Text = "By Jokie";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // label2
